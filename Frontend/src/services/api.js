@@ -2,9 +2,9 @@ import axios from "axios";
 import { store } from "../redux/store";
 import { logoutUser } from "../redux/authSlice";
 
-// Centralized API configuration pointing to local backend
+// Centralized API configuration pointing to local or deployed backend
 const API = axios.create({
-    baseURL: "http://localhost:3000",
+    baseURL: import.meta.env.VITE_API_URL || "https://codearena-backend-ntph.onrender.com",
     withCredentials: true, // Crucial for cookie transmission
     headers: {
         "Content-Type": "application/json"
