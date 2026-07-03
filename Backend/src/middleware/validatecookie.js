@@ -25,7 +25,13 @@ const validatecookie = async (req, res, next) => {
         next();
     }
     catch (err) {
-        res.cookie("token", null, { expires: new Date(Date.now()) });
+        const isProduction = process.env.NODE_ENV === "production" || !!process.env.FRONTEND_URL;
+        res.cookie("token", null, {
+            expires: new Date(Date.now()),
+            httpOnly: true,
+            secure: isProduction,
+            sameSite: isProduction ? 'none' : 'lax'
+        });
         res.status(401).send(err.message);
     }
 

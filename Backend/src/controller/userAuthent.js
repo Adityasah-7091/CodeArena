@@ -111,7 +111,13 @@ const verifyOtp = async (req, res) => {
         await redisClient.del(`attempts:${normalizedEmail}`);
 
         // Set JWT token cookie
-        res.cookie('token', token, { maxAge: 60 * 60 * 1000 });
+        const isProduction = process.env.NODE_ENV === "production" || !!process.env.FRONTEND_URL;
+        res.cookie('token', token, {
+            maxAge: 60 * 60 * 1000,
+            httpOnly: true,
+            secure: isProduction,
+            sameSite: isProduction ? 'none' : 'lax'
+        });
         res.status(201).json({
             message: "User verified and registered successfully",
             user: {
@@ -191,7 +197,13 @@ const login = async (req, res) => {
         if (!result) throw new Error("Invalid email or password");
 
         const token = jwt.sign({ userId: user._id, emailId: emailId, role: user.role }, process.env.JWT_KEY, { expiresIn: 60 * 60 });
-        res.cookie('token', token, { maxAge: 60 * 60 * 1000 });
+        const isProduction = process.env.NODE_ENV === "production" || !!process.env.FRONTEND_URL;
+        res.cookie('token', token, {
+            maxAge: 60 * 60 * 1000,
+            httpOnly: true,
+            secure: isProduction,
+            sameSite: isProduction ? 'none' : 'lax'
+        });
         res.status(201).send("User LogedIn successfully");
     }
     catch (err) {
@@ -211,7 +223,13 @@ const logout = async (req, res) => {
         await redisClient.expireAt(`token:${token}`, payload.exp);
 
         //clear cookie
-        res.cookie("token", null, { expires: new Date(Date.now()) });
+        const isProduction = process.env.NODE_ENV === "production" || !!process.env.FRONTEND_URL;
+        res.cookie("token", null, {
+            expires: new Date(Date.now()),
+            httpOnly: true,
+            secure: isProduction,
+            sameSite: isProduction ? 'none' : 'lax'
+        });
         res.send("Logged Out Succesfully");
     }
     catch (err) {
