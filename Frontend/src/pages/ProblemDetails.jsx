@@ -23,6 +23,7 @@ export const ProblemDetails = ({ onShowToast }) => {
     const [runResults, setRunResults] = useState(null);
     const [submitResult, setSubmitResult] = useState(null);
     const [consoleOpen, setConsoleOpen] = useState(false);
+    const [consoleHeight, setConsoleHeight] = useState(220);
 
     // Default template fallback codes matching CodeChef defaults with user edits
     const defaultTemplates = {
@@ -161,6 +162,26 @@ export const ProblemDetails = ({ onShowToast }) => {
                 handleSubmitRef.current();
             }
         });
+    };
+
+    const handleMouseDown = (e) => {
+        e.preventDefault();
+        const startY = e.clientY;
+        const startHeight = consoleHeight;
+
+        const handleMouseMove = (moveEvent) => {
+            const deltaY = moveEvent.clientY - startY;
+            const newHeight = Math.max(120, Math.min(480, startHeight - deltaY));
+            setConsoleHeight(newHeight);
+        };
+
+        const handleMouseUp = () => {
+            document.removeEventListener("mousemove", handleMouseMove);
+            document.removeEventListener("mouseup", handleMouseUp);
+        };
+
+        document.addEventListener("mousemove", handleMouseMove);
+        document.addEventListener("mouseup", handleMouseUp);
     };
 
     const getDifficultyColor = (diff) => {
@@ -362,10 +383,18 @@ export const ProblemDetails = ({ onShowToast }) => {
                     </div>
                 </div>
 
-                {/* Console Panel */}
                 {consoleOpen && (
-                    <div className="border-t border-dark-border bg-dark-card h-[180px] overflow-y-auto flex flex-col">
-                        <div className="px-4 py-2 border-b border-dark-border text-xs font-semibold text-gray-400 bg-dark-bg flex items-center justify-between">
+                    <div 
+                        style={{ height: `${consoleHeight}px` }} 
+                        className="border-t border-dark-border bg-dark-card flex flex-col relative"
+                    >
+                        {/* Resize Handle */}
+                        <div 
+                            onMouseDown={handleMouseDown}
+                            className="absolute top-0 left-0 right-0 h-1 bg-transparent hover:bg-primary/50 cursor-row-resize z-50 transition-colors"
+                            title="Drag to resize console"
+                        />
+                        <div className="px-4 py-2 border-b border-dark-border text-xs font-semibold text-gray-400 bg-dark-bg flex items-center justify-between select-none">
                             <span>Execution Log</span>
                             <button onClick={() => setConsoleOpen(false)} className="hover:text-white font-bold">✕</button>
                         </div>
