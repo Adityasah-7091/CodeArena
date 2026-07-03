@@ -1,7 +1,7 @@
 const axios = require("axios");
 
 /**
- * Send OTP Verification Email using Resend HTTP Mail API
+ * Send OTP Verification Email using Brevo (Sendinblue) HTTP API
  * @param {string} email 
  * @param {string} otp 
  */
@@ -23,44 +23,45 @@ const sendOTPEmail = async (email, otp) => {
         </div>
     `;
 
-    const apiKey = process.env.RESEND_API_KEY;
+    const apiKey = process.env.BREVO_API_KEY;
+    const senderEmail = process.env.EMAIL_USER || "adityasah7091@gmail.com";
 
-    // If Resend API Key is not configured, fallback to console log
+    // If Brevo API Key is not configured, fallback to console log
     if (!apiKey) {
         console.log("========================================");
-        console.log(`[MAIL MOCK] Resend API key is missing. Logging OTP.`);
+        console.log(`[MAIL MOCK] Brevo API key is missing. Logging OTP.`);
         console.log(`[MAIL MOCK] Sending OTP to: ${email}`);
         console.log(`[MAIL MOCK] OTP Code: ${otp}`);
         console.log("========================================");
-        return { message: "Mock email logged (RESEND_API_KEY is not defined)" };
+        return { message: "Mock email logged (BREVO_API_KEY is not defined)" };
     }
 
     try {
         const response = await axios.post(
-            "https://api.resend.com/emails",
+            "https://api.brevo.com/v3/smtp/email",
             {
-                from: "onboarding@resend.dev", // Free sandbox sender
-                to: email,
+                sender: { name: "CodeArena", email: senderEmail },
+                to: [{ email: email }],
                 subject: "Verify Your CodeArena Account - OTP",
-                html: htmlContent
+                htmlContent: htmlContent
             },
             {
                 headers: {
-                    Authorization: `Bearer ${apiKey}`,
+                    "api-key": apiKey,
                     "Content-Type": "application/json"
                 }
             }
         );
 
-        console.log(`Email sent successfully via Resend API: ${response.data.id}`);
+        console.log(`Email sent successfully via Brevo API: ${response.data.messageId || "Success"}`);
         return response.data;
     } catch (error) {
         const errMsg = error.response?.data?.message || error.message;
-        console.error("Error sending email via Resend:", errMsg);
+        console.error("Error sending email via Brevo:", errMsg);
         
         // Fallback so it doesn't crash signup if API fails
         console.log("========================================");
-        console.log(`[MAIL FALLBACK] Failed to send email via Resend API. Details:`);
+        console.log(`[MAIL FALLBACK] Failed to send email via Brevo API. Details:`);
         console.log(`To: ${email}`);
         console.log(`OTP Code: ${otp}`);
         console.log("========================================");
