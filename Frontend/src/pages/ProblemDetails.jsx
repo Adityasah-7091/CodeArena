@@ -415,7 +415,7 @@ export const ProblemDetails = ({ onShowToast }) => {
                                                 }`}>
                                                     {result.status.description}
                                                 </span>
-                                                <span className="text-[10px] text-gray-500">{result.time ? `${result.time}s` : ""}</span>
+                                                <span className="text-[10px] text-gray-500">{result.time ? `${Number(result.time).toFixed(3)}s` : ""}</span>
                                             </div>
                                             <div className="grid grid-cols-1 gap-1.5 mt-1.5 text-gray-400">
                                                 {result.stdin && (
@@ -462,8 +462,8 @@ export const ProblemDetails = ({ onShowToast }) => {
                                     <p className="text-gray-400">Test Cases Passed: <span className="font-semibold text-white">{submitResult.testCasePassed} / {submitResult.totalTestCases}</span></p>
                                     {submitResult.status === "Accepted" && (
                                         <div className="grid grid-cols-2 gap-4 pt-2 text-gray-400">
-                                            <div><span className="text-[10px] text-gray-600 block">Runtime</span> <span className="text-white font-semibold">{submitResult.runtime}s</span></div>
-                                            <div><span className="text-[10px] text-gray-600 block">Memory</span> <span className="text-white font-semibold">{submitResult.space} KB</span></div>
+                                            <div><span className="text-[10px] text-gray-600 block">Runtime</span> <span className="text-white font-semibold">{submitResult.runtime ? `${Number(submitResult.runtime).toFixed(3)}s` : "0.000s"}</span></div>
+                                            <div><span className="text-[10px] text-gray-600 block">Memory</span> <span className="text-white font-semibold">{submitResult.space ? `${Number(submitResult.space).toFixed(2)} KB` : "0.00 KB"}</span></div>
                                         </div>
                                     )}
                                     {submitResult.errorMessage && (
@@ -472,7 +472,7 @@ export const ProblemDetails = ({ onShowToast }) => {
                                             <pre className="bg-red-500/5 text-rose-400 p-2.5 rounded border border-red-500/10 text-[11px] leading-tight overflow-x-auto whitespace-pre-wrap">{submitResult.errorMessage}</pre>
                                         </div>
                                     )}
-                                    {submitResult.failedTestCase && (
+                                    {submitResult.status !== "Accepted" && submitResult.failedTestCase && (
                                         <div className="mt-3 border border-red-500/20 bg-red-500/5 rounded p-3 space-y-2 text-gray-400">
                                             <p className="font-semibold text-rose-400 text-xs">First Failed Hidden Test Case:</p>
                                             {submitResult.failedTestCase.input && (
