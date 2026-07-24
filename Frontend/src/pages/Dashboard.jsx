@@ -18,7 +18,7 @@ export const Dashboard = ({ onShowToast }) => {
                     problemService.getSolvedProblems(),
                     submissionService.getSubmissions()
                 ]);
-                setSolvedList(solvedData || []);
+                setSolvedList((solvedData || []).filter(Boolean));
                 setSubmissions(subData || []);
             } catch (error) {
                 onShowToast("error", "Failed to load dashboard data: " + error.message);
@@ -34,10 +34,10 @@ export const Dashboard = ({ onShowToast }) => {
 
     // Calculate difficulty statistics
     const stats = {
-        Easy: solvedList.filter((p) => p.difficulty === "Easy").length,
-        Medium: solvedList.filter((p) => p.difficulty === "Medium").length,
-        Hard: solvedList.filter((p) => p.difficulty === "Hard").length,
-        Total: solvedList.length
+        Easy: solvedList.filter((p) => p && p.difficulty === "Easy").length,
+        Medium: solvedList.filter((p) => p && p.difficulty === "Medium").length,
+        Hard: solvedList.filter((p) => p && p.difficulty === "Hard").length,
+        Total: solvedList.filter(Boolean).length
     };
 
     const getStatusColor = (status) => {

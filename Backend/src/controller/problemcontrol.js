@@ -77,7 +77,7 @@ const updateProblem = async (req, res) => {
         }
 
         const newProblem = await Problem.findByIdAndUpdate(id, { ...req.body }, { runValidators: true, new: true });
-        res.status(202).send("Problem Updated", newProblem);
+        res.status(202).json(newProblem);
     }
     catch (err) {
         res.status(500).send("Error" + err);
@@ -146,7 +146,7 @@ const solvedProblem = async (req, res) => {
 
         const userId = req.result._id;
         const user = await User.findById(userId).populate('problemsolved','title difficulty');
-        res.send(user.problemsolved);
+        res.send(user.problemsolved.filter(p => p !== null));
 
     }
     catch (err) {

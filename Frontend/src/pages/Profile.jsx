@@ -34,7 +34,7 @@ export const Profile = ({ onShowToast }) => {
         const fetchProfileData = async () => {
             try {
                 const data = await problemService.getSolvedProblems();
-                setSolvedList(data || []);
+                setSolvedList((data || []).filter(Boolean));
             } catch (error) {
                 onShowToast("error", "Failed to fetch solved problems: " + error.message);
             } finally {

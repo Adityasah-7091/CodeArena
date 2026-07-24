@@ -11,7 +11,7 @@ const submitCode = async (req, res) => {
         const user_id = req.result._id;
         const problem_id = req.params.id;
         const code = req.body.code;
-        const language = req.body.language;
+        let language = req.body.language;
 
         
         if(!user_id||!problem_id||!code||!language)
@@ -109,7 +109,7 @@ const runCode = async (req,res)=>{
         const user_id = req.result._id;
         const problem_id = req.params.id;
         const code = req.body.code;
-        const language = req.body.language;
+        let language = req.body.language;
 
         
         if(!user_id||!problem_id||!code||!language)

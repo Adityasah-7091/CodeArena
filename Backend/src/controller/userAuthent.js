@@ -13,8 +13,10 @@ const register = async (req, res) => {
         const { firstName, lastName, emailId, password } = req.body;
         validate(req.body);
 
+        const normalizedEmail = emailId.toLowerCase().trim();
+
         // Check if user already exists
-        const existingUser = await User.findOne({ emailId: emailId.toLowerCase().trim() });
+        const existingUser = await User.findOne({ emailId: normalizedEmail });
         if (existingUser) {
             return res.status(400).send("Error : Email already registered");
         }
@@ -23,16 +25,16 @@ const register = async (req, res) => {
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
         // Store signup details in Redis (expires in 5 minutes)
-        await redisClient.set(`signup:${emailId}`, JSON.stringify({ firstName, lastName, emailId, password }), { EX: 300 });
+        await redisClient.set(`signup:${normalizedEmail}`, JSON.stringify({ firstName, lastName, emailId: normalizedEmail, password }), { EX: 300 });
 
         // Store OTP in Redis (expires in 5 minutes)
-        await redisClient.set(`otp:${emailId}`, otp, { EX: 300 });
+        await redisClient.set(`otp:${normalizedEmail}`, otp, { EX: 300 });
 
         // Store attempt counter in Redis (expires in 5 minutes)
-        await redisClient.set(`attempts:${emailId}`, "0", { EX: 300 });
+        await redisClient.set(`attempts:${normalizedEmail}`, "0", { EX: 300 });
 
         // Send the OTP
-        await sendOTPEmail(emailId, otp);
+        await sendOTPEmail(normalizedEmail, otp);
 
         res.status(200).send("OTP sent successfully to your email");
     }
@@ -260,12 +262,20 @@ const adminReg = async (req, res) => {
     try {
         const { firstName, emailId, password } = req.body;
         validate(req.body);
+        
+        const normalizedEmail = emailId.toLowerCase().trim();
+        const existingUser = await User.findOne({ emailId: normalizedEmail });
+        if (existingUser) {
+            return res.status(400).send("Error : Email already registered");
+        }
+
+        req.body.emailId = normalizedEmail;
         req.body.password = await bcrypt.hash(password, 10);
         await User.create(req.body);
         res.status(201).send("User registered successfully");
     }
     catch (err) {
-        res.status(400).send("Error : " + err);
+        res.status(400).send("Error : " + err.message);
     }
 }
 

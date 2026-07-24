@@ -24,6 +24,7 @@ const submitBatch = async (submissions) => {
     }
     catch (err) {
         console.error(err);
+        throw err;
     }
 }
 

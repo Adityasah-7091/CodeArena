@@ -1,9 +1,18 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { problemService, submissionService } from "../services/api";
 import Editor from "@monaco-editor/react";
 import { Loader } from "../components/Loader";
-import { Play, Code2, Send, HelpCircle, CheckCircle2, XCircle, AlertTriangle, Terminal, ChevronRight, Loader2 } from "lucide-react";
+import { Play, Code2, Send, HelpCircle, Terminal, Loader2 } from "lucide-react";
+
+// Default template fallback codes matching CodeChef defaults with user edits
+const defaultTemplates = {
+    c: `#include <stdio.h>\n\nint main(void) {\n\t// write your code here\n\treturn 0;\n}`,
+    cpp: `#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n\t// write your code here\n\treturn 0;\n}`,
+    java: `import java.util.*;\nimport java.lang.*;\nimport java.io.*;\n\nclass Main\n{\n\tpublic static void main (String[] args) throws java.lang.Exception\n\t{\n\t\t// write your code here\n\t}\n}`,
+    javascript: `// write your code here`,
+    python: `# write your code here`
+};
 
 export const ProblemDetails = ({ onShowToast }) => {
     const { id } = useParams();
@@ -24,15 +33,6 @@ export const ProblemDetails = ({ onShowToast }) => {
     const [submitResult, setSubmitResult] = useState(null);
     const [consoleOpen, setConsoleOpen] = useState(false);
     const [consoleHeight, setConsoleHeight] = useState(220);
-
-    // Default template fallback codes matching CodeChef defaults with user edits
-    const defaultTemplates = {
-        c: `#include <stdio.h>\n\nint main(void) {\n\t// write your code here\n\treturn 0;\n}`,
-        cpp: `#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n\t// write your code here\n\treturn 0;\n}`,
-        java: `import java.util.*;\nimport java.lang.*;\nimport java.io.*;\n\nclass Main\n{\n\tpublic static void main (String[] args) throws java.lang.Exception\n\t{\n\t\t// write your code here\n\t}\n}`,
-        javascript: `// write your code here`,
-        python: `# write your code here`
-    };
 
     useEffect(() => {
         const fetchProblem = async () => {
@@ -122,10 +122,8 @@ export const ProblemDetails = ({ onShowToast }) => {
     const handleRunRef = useRef(handleRun);
     const handleSubmitRef = useRef(handleSubmit);
 
-    useEffect(() => {
-        handleRunRef.current = handleRun;
-        handleSubmitRef.current = handleSubmit;
-    }, [handleRun, handleSubmit]);
+    handleRunRef.current = handleRun;
+    handleSubmitRef.current = handleSubmit;
 
     useEffect(() => {
         const handleKeyDown = (e) => {
